@@ -128,12 +128,7 @@
       const categories = ["Todos", "Aseo", "Comida", "Electrodomésticos", "Útiles para el hogar"];
       let currentCategory = "Todos";
       
-      let products = JSON.parse(localStorage.getItem("erlin_products")) || [
-        { id: 1, name: "Detergente Multiuso", price: 5.00, category: "Aseo", image: "https://images.unsplash.com/photo-1585832770485-e68a5fc88280?w=300" },
-        { id: 2, name: "Arroz Extra 1kg", price: 2.50, category: "Comida", image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300" },
-        { id: 3, name: "Cafetera Eléctrica", price: 35.00, category: "Electrodomésticos", image: "https://images.unsplash.com/photo-1517668808822-9e428824603b?w=300" },
-        { id: 4, name: "Juego de Vasos", price: 12.00, category: "Útiles para el hogar", image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=300" }
-      ];
+      let products = JSON.parse(localStorage.getItem("erlin_products")) || [];
 
       let cart = JSON.parse(localStorage.getItem("erlin_cart")) || [];
 
