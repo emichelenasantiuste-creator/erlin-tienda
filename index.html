@@ -1,0 +1,695 @@
+```html
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ErLin - Tienda Online</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom animations & fine tuning */
+        .cart-slide-enter {
+            transform: translateX(100%);
+        }
+        .cart-slide-active {
+            transform: translateX(0%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 font-sans antialiased flex flex-col min-h-screen selection:bg-brand-500 selection:text-white">
+
+    <!-- TOP HEADER -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <!-- Logo & Branding -->
+                <div class="flex items-center gap-3">
+                    <a href="#" class="flex items-center gap-2 group">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+                            <i class="fa-solid font-bold text-xl">E</i>
+                        </div>
+                        <div>
+                            <span class="text-2xl font-black tracking-tight text-slate-900 group-hover:text-brand-600 transition-colors">ErLin</span>
+                            <span class="hidden sm:inline-block text-xs text-slate-500 block -mt-1 font-medium">Tienda Multicategoría</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Search Bar (Desktop / Tablet) -->
+                <div class="hidden md:flex flex-1 max-w-md mx-4">
+                    <div class="relative w-full">
+                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Buscar productos, marcas, categorías..." class="w-full pl-10 pr-4 py-2 bg-slate-100 border border-transparent rounded-xl text-sm focus:outline-none focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-sm"></i>
+                    </div>
+                </div>
+
+                <!-- Actions: Add Product (Owner) & Cart -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Owner Add Product Button -->
+                    <button onclick="openAddModal()" class="inline-flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors" title="Agregar nuevo producto">
+                        <i class="fa-solid fa-plus text-brand-600"></i>
+                        <span class="hidden sm:inline">Nuevo Producto</span>
+                    </button>
+
+                    <!-- Cart Trigger Button -->
+                    <button onclick="toggleCart(true)" class="relative p-2.5 sm:px-4 sm:py-2 text-slate-700 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 rounded-xl transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-lg sm:text-base"></i>
+                        <span class="hidden sm:inline font-semibold text-sm">Carrito</span>
+                        <span id="cartBadge" class="absolute -top-1.5 -right-1.5 sm:static bg-brand-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center shadow-sm">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search Bar -->
+            <div class="pb-3 md:hidden">
+                <div class="relative w-full">
+                    <input type="text" id="mobileSearchInput" oninput="handleMobileSearch()" placeholder="Buscar en ErLin..." class="w-full pl-10 pr-4 py-2 bg-slate-100 border border-transparent rounded-xl text-sm focus:outline-none focus:bg-white focus:border-brand-500">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-sm"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="bg-gradient-to-r from-slate-900 via-slate-800 to-brand-900 text-white py-8 sm:py-10 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="space-y-2 text-center md:text-left">
+                <span class="inline-block px-3 py-1 bg-brand-500/20 text-brand-300 rounded-full text-xs font-semibold tracking-wide border border-brand-500/30">
+                    <i class="fa-brands fa-whatsapp mr-1 text-emerald-400"></i> Pedidos Rápidos por WhatsApp
+                </span>
+                <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Todo lo que necesitas, a un clic.</h1>
+                <p class="text-slate-300 text-sm sm:text-base max-w-xl">
+                    Explora nuestro catálogo, arma tu pedido en el carrito y te lo enviamos directamente a tu puerta.
+                </p>
+            </div>
+            <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+                <div class="text-emerald-400 text-3xl"><i class="fa-solid fa-truck-fast"></i></div>
+                <div class="text-xs sm:text-sm">
+                    <p class="font-semibold text-white">Atención personalizada</p>
+                    <p class="text-slate-300">Envíos a domicilio directos</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORY FILTERS & CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+        
+        <!-- Category Filter Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-4 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+            <button onclick="setCategory('All')" class="category-btn active border px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all bg-brand-600 text-white border-brand-600 shadow-sm" data-category="All">
+                <i class="fa-solid fa-border-all mr-1.5"></i> Todos
+            </button>
+            <button onclick="setCategory('Aseo')" class="category-btn border px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all bg-white text-slate-600 border-slate-200 hover:bg-slate-100" data-category="Aseo">
+                <i class="fa-solid fa-pump-soap mr-1.5 text-blue-500"></i> Aseo
+            </button>
+            <button onclick="setCategory('Comida')" class="category-btn border px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all bg-white text-slate-600 border-slate-200 hover:bg-slate-100" data-category="Comida">
+                <i class="fa-solid fa-utensils mr-1.5 text-amber-500"></i> Comida
+            </button>
+            <button onclick="setCategory('Electrodomésticos')" class="category-btn border px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all bg-white text-slate-600 border-slate-200 hover:bg-slate-100" data-category="Electrodomésticos">
+                <i class="fa-solid fa-plug mr-1.5 text-purple-500"></i> Electrodomésticos
+            </button>
+            <button onclick="setCategory('Útiles para el hogar')" class="category-btn border px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all bg-white text-slate-600 border-slate-200 hover:bg-slate-100" data-category="Útiles para el hogar">
+                <i class="fa-solid fa-house-laptop mr-1.5 text-emerald-500"></i> Útiles para el hogar
+            </button>
+        </div>
+
+        <!-- Section Title & Results Count -->
+        <div class="flex items-center justify-between my-6">
+            <h2 id="sectionTitle" class="text-xl font-bold text-slate-900">Todos los productos</h2>
+            <span id="resultsCount" class="text-xs font-semibold text-slate-500 bg-slate-200/60 px-2.5 py-1 rounded-full">0 artículos</span>
+        </div>
+
+        <!-- PRODUCTS GRID -->
+        <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16 space-y-3">
+            <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">No se encontraron productos</h3>
+            <p class="text-sm text-slate-500 max-w-sm mx-auto">Intenta cambiar el filtro o buscar con un término diferente.</p>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-3">
+            <div class="flex items-center justify-center gap-2">
+                <div class="w-6 h-6 rounded-lg bg-brand-600 text-white font-bold flex items-center justify-center text-xs">E</div>
+                <span class="font-bold text-slate-800 text-sm">ErLin</span>
+            </div>
+            <p>Pedidos enviados directamente a WhatsApp: <span class="font-semibold text-slate-700">+53 53826587</span></p>
+            <p class="text-slate-400">&copy; <span id="year"></span> ErLin. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- SLIDE-OVER CART MODAL -->
+    <div id="cartModal" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+        <!-- Backdrop -->
+        <div id="cartBackdrop" onclick="toggleCart(false)" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm pointer-events-auto"></div>
+
+        <!-- Panel -->
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10 pointer-events-auto">
+            <div id="cartPanel" class="w-screen max-w-md bg-white shadow-2xl flex flex-col cart-slide-enter transition-transform duration-300 ease-out">
+                
+                <!-- Cart Header -->
+                <div class="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-brand-600"></i>
+                        <h2 class="text-lg font-bold text-slate-900">Tu Carrito de Compras</h2>
+                    </div>
+                    <button onclick="toggleCart(false)" class="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/50">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Cart Items List / Scrollable -->
+                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <!-- Dynamically populated -->
+                </div>
+
+                <!-- Cart Checkout Footer -->
+                <div id="cartFooter" class="border-t border-slate-200 p-4 sm:p-6 bg-slate-50 space-y-4">
+                    <!-- Total breakdown -->
+                    <div class="space-y-1.5 text-sm">
+                        <div class="flex justify-between text-slate-500">
+                            <span>Subtotal</span>
+                            <span id="cartSubtotal" class="font-medium">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-200">
+                            <span>Total Estimado</span>
+                            <span id="cartTotal" class="text-brand-600">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Checkout Form -->
+                    <form id="checkoutForm" onsubmit="sendWhatsAppOrder(event)" class="space-y-3 pt-2">
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Datos para la entrega</p>
+
+                        <div>
+                            <input type="text" id="custName" required placeholder="Nombre y Apellidos *" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="tel" id="custPhone" required placeholder="Teléfono *" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:outline-none">
+                            <select id="custPayment" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:outline-none bg-white">
+                                <option value="Efectivo en entrega">Efectivo</option>
+                                <option value="Transferencia Bancaria">Transferencia</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <input type="text" id="custAddress" required placeholder="Dirección completa de entrega *" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <textarea id="custNotes" rows="2" placeholder="Notas adicionales (Ej: entregar en la tarde)..." class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:outline-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2 transition-transform active:scale-[0.99]">
+                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                            <span>Confirmar y Enviar Pedido</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD NEW PRODUCT (Owner Feature) -->
+    <div id="addProductModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-bold text-lg text-slate-900"><i class="fa-solid fa-plus-circle text-brand-600 mr-2"></i>Agregar Nuevo Producto</h3>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleAddProduct(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Producto</label>
+                    <input type="text" id="newProdTitle" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Ej: Detergente Multiuso 1L">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
+                        <select id="newProdCategory" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none bg-white">
+                            <option value="Aseo">Aseo</option>
+                            <option value="Comida">Comida</option>
+                            <option value="Electrodomésticos">Electrodomésticos</option>
+                            <option value="Útiles para el hogar">Útiles para el hogar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Precio ($)</label>
+                        <input type="number" step="0.01" min="0" id="newProdPrice" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="0.00">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">URL de la Imagen (Opcional)</label>
+                    <input type="url" id="newProdImage" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="https://ejemplo.com/imagen.jpg">
+                    <span class="text-[10px] text-slate-400">Dejar en blanco para usar imagen por defecto.</span>
+                </div>
+
+                <div class="pt-3 flex gap-2">
+                    <button type="button" onclick="closeAddModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm">Cancelar</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl text-sm">Guardar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // WhatsApp target phone number
+        const WHATSAPP_PHONE = "5353826587";
+
+        // Initial catalog dataset
+        const initialProducts = [
+            {
+                id: 1,
+                title: "Jabón de Baño Sanex (Pack 3)",
+                category: "Aseo",
+                price: 4.50,
+                image: "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 2,
+                title: "Detergente Líquido para Ropa 2L",
+                category: "Aseo",
+                price: 8.00,
+                image: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 3,
+                title: "Pasta de Dientes Colgate Triple Acción",
+                category: "Aseo",
+                price: 3.20,
+                image: "https://images.unsplash.com/photo-1559598467-f8b76c8155d0?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 4,
+                title: "Arroz Blanco Superior (5 kg)",
+                category: "Comida",
+                price: 9.50,
+                image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 5,
+                title: "Aceite de Girasol PureGold 1L",
+                category: "Comida",
+                price: 5.50,
+                image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 6,
+                title: "Café Molido Gourmet 250g",
+                category: "Comida",
+                price: 4.00,
+                image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 7,
+                title: "Freidora de Aire Digital 4.5L",
+                category: "Electrodomésticos",
+                price: 85.00,
+                image: "https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 8,
+                title: "Batidora de Mano Multifunción",
+                category: "Electrodomésticos",
+                price: 32.00,
+                image: "https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 9,
+                title: "Cafetera Eléctrica Programable",
+                category: "Electrodomésticos",
+                price: 45.00,
+                image: "https://images.unsplash.com/photo-1517668808822-9e4288246232?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 10,
+                title: "Juego de Sartenes Antiadherentes (3 pzs)",
+                category: "Útiles para el hogar",
+                price: 28.00,
+                image: "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 11,
+                title: "Organizador Multiuso de Cocina",
+                category: "Útiles para el hogar",
+                price: 15.00,
+                image: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 12,
+                title: "Juego de Toallas de Algodón (2 pzs)",
+                category: "Útiles para el hogar",
+                price: 18.50,
+                image: "https://images.unsplash.com/photo-1616627547584-bf28cee262db?auto=format&fit=crop&q=80&w=400"
+            }
+        ];
+
+        // App state
+        let products = JSON.parse(localStorage.getItem('erlin_products')) || initialProducts;
+        let cart = JSON.parse(localStorage.getItem('erlin_cart')) || [];
+        let currentCategory = 'All';
+        let searchQuery = '';
+
+        // DOM elements
+        const productsGrid = document.getElementById('productsGrid');
+        const emptyState = document.getElementById('emptyState');
+        const cartBadge = document.getElementById('cartBadge');
+        const cartItemsContainer = document.getElementById('cartItemsContainer');
+        const cartSubtotal = document.getElementById('cartSubtotal');
+        const cartTotal = document.getElementById('cartTotal');
+        const sectionTitle = document.getElementById('sectionTitle');
+        const resultsCount = document.getElementById('resultsCount');
+
+        // Initialization
+        window.onload = function() {
+            document.getElementById('year').textContent = new Date().getFullYear();
+            renderProducts();
+            updateCartUI();
+        };
+
+        // Render products grid
+        function renderProducts() {
+            let filtered = products.filter(p => {
+                const matchesCat = currentCategory === 'All' || p.category === currentCategory;
+                const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      p.category.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCat && matchesSearch;
+            });
+
+            resultsCount.textContent = `${filtered.length} artículo${filtered.length === 1 ? '' : 's'}`;
+
+            if (filtered.length === 0) {
+                productsGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            productsGrid.innerHTML = filtered.map(product => {
+                const cartItem = cart.find(item => item.id === product.id);
+                const quantityInCart = cartItem ? cartItem.quantity : 0;
+
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col group">
+                        <div class="relative bg-slate-100 aspect-square overflow-hidden">
+                            <img src="${product.image}" alt="${product.title}" 
+                                 onerror="this.src='https://placehold.co/400x400/e2e8f0/475569?text=ErLin'" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                                ${product.category}
+                            </span>
+                        </div>
+                        
+                        <div class="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-3">
+                            <div>
+                                <h3 class="font-semibold text-xs sm:text-sm text-slate-800 line-clamp-2 group-hover:text-brand-600 transition-colors">
+                                    ${product.title}
+                                </h3>
+                            </div>
+
+                            <div class="space-y-2 pt-2 border-t border-slate-100">
+                                <div class="flex items-baseline justify-between">
+                                    <span class="text-xs text-slate-400 font-medium">Precio</span>
+                                    <span class="text-base sm:text-lg font-bold text-slate-900">$${product.price.toFixed(2)}</span>
+                                </div>
+
+                                ${quantityInCart > 0 ? `
+                                    <div class="flex items-center justify-between bg-brand-50 border border-brand-200 rounded-xl p-1">
+                                        <button onclick="updateQuantity(${product.id}, -1)" class="w-7 h-7 bg-white text-brand-700 hover:bg-brand-100 rounded-lg font-bold flex items-center justify-center shadow-sm">
+                                            -
+                                        </button>
+                                        <span class="text-xs font-bold text-brand-800">${quantityInCart} en carrito</span>
+                                        <button onclick="updateQuantity(${product.id}, 1)" class="w-7 h-7 bg-brand-600 text-white hover:bg-brand-700 rounded-lg font-bold flex items-center justify-center shadow-sm">
+                                            +
+                                        </button>
+                                    </div>
+                                ` : `
+                                    <button onclick="addToCart(${product.id})" class="w-full py-2 px-3 bg-slate-900 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                                        <i class="fa-solid fa-cart-plus"></i>
+                                        <span>Agregar</span>
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter handlers
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.dataset.category === cat) {
+                    btn.className = 'category-btn active border px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all bg-brand-600 text-white border-brand-600 shadow-sm';
+                } else {
+                    btn.className = 'category-btn border px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all bg-white text-slate-600 border-slate-200 hover:bg-slate-100';
+                }
+            });
+            sectionTitle.textContent = cat === 'All' ? 'Todos los productos' : cat;
+            renderProducts();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value;
+            renderProducts();
+        }
+
+        function handleMobileSearch() {
+            searchQuery = document.getElementById('mobileSearchInput').value;
+            renderProducts();
+        }
+
+        // Cart functions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existing = cart.find(item => item.id === productId);
+
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            saveCart();
+            renderProducts();
+            updateCartUI();
+        }
+
+        function updateQuantity(productId, change) {
+            const index = cart.findIndex(item => item.id === productId);
+            if (index !== -1) {
+                cart[index].quantity += change;
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            saveCart();
+            renderProducts();
+            updateCartUI();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveCart();
+            renderProducts();
+            updateCartUI();
+        }
+
+        function saveCart() {
+            localStorage.setItem('erlin_cart', JSON.stringify(cart));
+        }
+
+        function updateCartUI() {
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartBadge.textContent = totalCount;
+
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartSubtotal.textContent = `$${totalAmount.toFixed(2)}`;
+            cartTotal.textContent = `$${totalAmount.toFixed(2)}`;
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="text-center py-12 space-y-3">
+                        <div class="w-16 h-16 bg-slate-100 text-slate-300 rounded-full flex items-center justify-center mx-auto text-2xl">
+                            <i class="fa-solid fa-cart-arrow-down"></i>
+                        </div>
+                        <p class="font-semibold text-slate-700">Tu carrito está vacío</p>
+                        <p class="text-xs text-slate-400">Agrega productos para realizar tu pedido por WhatsApp.</p>
+                    </div>
+                `;
+                document.getElementById('cartFooter').classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                document.getElementById('cartFooter').classList.remove('opacity-50', 'pointer-events-none');
+                cartItemsContainer.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200/60">
+                        <img src="${item.image}" alt="${item.title}" onerror="this.src='https://placehold.co/100x100/e2e8f0/475569?text=ErLin'" class="w-14 h-14 object-cover rounded-lg border bg-white">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-semibold text-slate-800 truncate">${item.title}</h4>
+                            <p class="text-xs text-slate-500 font-medium">$${item.price.toFixed(2)} c/u</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 bg-white border rounded text-xs font-bold text-slate-600 hover:bg-slate-100">-</button>
+                                <span class="text-xs font-bold text-slate-800">${item.quantity}</span>
+                                <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 bg-white border rounded text-xs font-bold text-slate-600 hover:bg-slate-100">+</button>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-slate-900">$${(item.price * item.quantity).toFixed(2)}</p>
+                            <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700 text-xs p-1 mt-1" title="Eliminar">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function toggleCart(show) {
+            const modal = document.getElementById('cartModal');
+            const panel = document.getElementById('cartPanel');
+
+            if (show) {
+                modal.classList.remove('pointer-events-none', 'opacity-0');
+                modal.classList.add('opacity-100');
+                panel.classList.remove('cart-slide-enter');
+                panel.classList.add('cart-slide-active');
+            } else {
+                modal.classList.add('opacity-0');
+                panel.classList.remove('cart-slide-active');
+                panel.classList.add('cart-slide-enter');
+                setTimeout(() => {
+                    modal.classList.add('pointer-events-none');
+                }, 300);
+            }
+        }
+
+        // WhatsApp Order Submission
+        function sendWhatsAppOrder(event) {
+            event.preventDefault();
+
+            if (cart.length === 0) return;
+
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const payment = document.getElementById('custPayment').value;
+            const address = document.getElementById('custAddress').value.trim();
+            const notes = document.getElementById('custNotes').value.trim();
+
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Construct message text
+            let message = `🛒 *NUEVO PEDIDO - ErLin*\n\n`;
+            message += `👤 *Cliente:* ${name}\n`;
+            message += `📞 *Teléfono:* ${phone}\n`;
+            message += `📍 *Dirección:* ${address}\n`;
+            message += `💳 *Método de Pago:* ${payment}\n`;
+            if (notes) message += `📝 *Notas:* ${notes}\n`;
+
+            message += `\n📦 *DETALLE DEL PEDIDO:*\n`;
+            cart.forEach(item => {
+                const sub = (item.price * item.quantity).toFixed(2);
+                message += `• ${item.quantity}x ${item.title} - $${sub}\n`;
+            });
+
+            message += `\n💰 *TOTAL A PAGAR:* $${totalAmount.toFixed(2)}`;
+
+            // Encode for URL
+            const encodedText = encodeURIComponent(message);
+            const waUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedText}`;
+
+            // Open WhatsApp
+            window.open(waUrl, '_blank');
+        }
+
+        // Add Product Modal Logic
+        function openAddModal() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+        }
+
+        function handleAddProduct(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('newProdTitle').value.trim();
+            const category = document.getElementById('newProdCategory').value;
+            const price = parseFloat(document.getElementById('newProdPrice').value);
+            let image = document.getElementById('newProdImage').value.trim();
+
+            if (!image) {
+                image = "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&q=80&w=400";
+            }
+
+            const newProduct = {
+                id: Date.now(),
+                title,
+                category,
+                price,
+                image
+            };
+
+            products.unshift(newProduct);
+            localStorage.setItem('erlin_products', JSON.stringify(products));
+
+            closeAddModal();
+            renderProducts();
+            
+            // Reset form
+            event.target.reset();
+        }
+    </script>
+</body>
+</html>
+```
